@@ -332,35 +332,54 @@ public class Instance extends MinecraftVersion {
     }
 
     public void ignoreUpdate() {
-        String version;
-
         if (launcher.vanillaInstance) {
             return;
-        } else if (isExternalPack()) {
-            if (isCurseForgePack()) {
-                version = Integer.toString(CurseForgeUpdateManager.getLatestVersion(this).id);
-            } else if (isTechnicPack()) {
-                if (isTechnicSolderPack()) {
-                    version = TechnicModpackUpdateManager.getUpToDateSolderModpack(this).latest;
-                } else {
-                    version = TechnicModpackUpdateManager.getUpToDateModpack(this).version;
-                }
-            } else if (isModrinthPack()) {
-                version = ModrinthModpackUpdateManager.getLatestVersion(this).id;
-            } else {
-                return;
-            }
-        } else {
-            if (this.launcher.isDev) {
-                version = getLatestVersion().hash;
-            } else {
-                version = getLatestVersion().version;
-            }
+        }
+
+        String version = determineVersion();
+        if (version == null) {
+            return;
         }
 
         if (!hasUpdateBeenIgnored(version)) {
             this.launcher.ignoredUpdates.add(version);
             this.save();
+        }
+    }
+
+    private String determineVersion() {
+        if (isExternalPack()) {
+            return determineExternalPackVersion();
+        } else {
+            return determineInternalPackVersion();
+        }
+    }
+
+    private String determineExternalPackVersion() {
+        if (isCurseForgePack()) {
+            return Integer.toString(CurseForgeUpdateManager.getLatestVersion(this).id);
+        } else if (isTechnicPack()) {
+            return determineTechnicPackVersion();
+        } else if (isModrinthPack()) {
+            return ModrinthModpackUpdateManager.getLatestVersion(this).id;
+        } else {
+            return null;
+        }
+    }
+
+    private String determineTechnicPackVersion() {
+        if (isTechnicSolderPack()) {
+            return TechnicModpackUpdateManager.getUpToDateSolderModpack(this).latest;
+        } else {
+            return TechnicModpackUpdateManager.getUpToDateModpack(this).version;
+        }
+    }
+
+    private String determineInternalPackVersion() {
+        if (this.launcher.isDev) {
+            return getLatestVersion().hash;
+        } else {
+            return getLatestVersion().version;
         }
     }
 
