@@ -773,4 +773,6 @@ public final class Download {
     public int hashCode() {
         return this.to.hashCode();
     }
+
+
 }

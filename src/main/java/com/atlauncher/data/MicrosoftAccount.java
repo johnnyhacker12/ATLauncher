@@ -190,7 +190,8 @@ public class MicrosoftAccount extends AbstractAccount {
             }
 
             if (force || new Date().after(this.accessTokenExpiresAt)) {
-                LoginResponse loginResponse = MicrosoftAuthAPI.loginToMinecraft(this.getIdentityToken());
+                //Fix feature envy
+                LoginResponse loginResponse = MicrosoftAuthAPI.loginToMinecraft(xstsAuth.getIdentityToken());
 
                 if (loginResponse == null) {
                     mustLogin = true;
@@ -278,9 +279,6 @@ public class MicrosoftAccount extends AbstractAccount {
         return true;
     }
 
-    private String getIdentityToken() {
-        return "XBL3.0 x=" + xstsAuth.displayClaims.xui.get(0).uhs + ";" + xstsAuth.token;
-    }
 
     public boolean ensureAccountIsLoggedIn() {
         boolean hasCancelled = false;

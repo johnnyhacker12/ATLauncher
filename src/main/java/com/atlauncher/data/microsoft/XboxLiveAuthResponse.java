@@ -33,4 +33,8 @@ public class XboxLiveAuthResponse {
 
     @SerializedName("DisplayClaims")
     public XboxLiveDisplayClaims displayClaims;
+    //Extracted from MicrosoftAccount.java to fix feature envy
+    public String getIdentityToken() {
+        return "XBL3.0 x=" + displayClaims.xui.get(0).uhs + ";" + token;
+    }
 }
