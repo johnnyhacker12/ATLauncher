@@ -399,8 +399,8 @@ public class DisableableMod implements Serializable {
                         LogManager.logStackTrace(e);
                     }
                 }
-
-                List<String> neoForgeForgeCompatabilityVersions = ConfigManager
+                //Shorten identifier
+                List<String> ForgeCompVer = ConfigManager
                         .getConfigItem("loaders.neoforge.forgeCompatibleMinecraftVersions", new ArrayList<String>());
 
                 // filter out files not for our loader
@@ -420,7 +420,7 @@ public class DisableableMod implements Serializable {
                     if (cf.gameVersions.contains("Forge") && instance.launcher.loaderVersion != null
                             && (instance.launcher.loaderVersion.isForge()
                                     || (instance.launcher.loaderVersion.isNeoForge()
-                                            && neoForgeForgeCompatabilityVersions.contains(instance.id)))) {
+                                            && ForgeCompVer.contains(instance.id)))) { //Shorten identifier
                         return true;
                     }
 
