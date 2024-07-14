@@ -41,6 +41,7 @@ import com.atlauncher.viewmodel.base.IAccountsViewModel;
  * 12 / 06 / 2022
  */
 public class AccountsViewModel implements IAccountsViewModel {
+    private AccountOperation accountOperation;
     @Override
     public int accountCount() {
         return AccountManager.getAccounts().size();
@@ -125,11 +126,13 @@ public class AccountsViewModel implements IAccountsViewModel {
     public boolean isLoginPasswordSet() {
         return loginPassword != null && !loginPassword.isEmpty();
     }
+    public String getLoginPassword(){return loginPassword;}
 
     @Override
     public void setLoginPassword(String password) {
         loginPassword = password;
     }
+    public boolean getRememberLogin() {return loginRemember;}
 
     @Override
     public void setRememberLogin(boolean rememberLogin) {
@@ -139,7 +142,7 @@ public class AccountsViewModel implements IAccountsViewModel {
     private String clientToken = null;
 
     @NotNull
-    private String getClientToken() {
+    public String getClientToken() {
         if (clientToken == null)
             clientToken = UUID.randomUUID().toString().replace("-", "");
 
@@ -158,43 +161,6 @@ public class AccountsViewModel implements IAccountsViewModel {
         return null;
     }
 
-    private void addNewAccount(LoginResponse response) {
-        MojangAccount account = new MojangAccount(loginUsername,
-                loginPassword,
-                response,
-                loginRemember,
-                getClientToken());
-
-        AccountManager.addAccount(account);
-        pushNewAccounts();
-    }
-
-    private void editAccount(LoginResponse response) {
-        AbstractAccount account = getSelectedAccount();
-
-        if (account instanceof MojangAccount) {
-            MojangAccount mojangAccount = (MojangAccount) account;
-
-            mojangAccount.username = loginUsername;
-            mojangAccount.minecraftUsername = response.getAuth().getSelectedProfile().getName();
-            mojangAccount.uuid = response.getAuth().getSelectedProfile().getId().toString();
-            if (loginRemember) {
-                mojangAccount.setPassword(loginPassword);
-            } else {
-                mojangAccount.encryptedPassword = null;
-                mojangAccount.password = null;
-            }
-            mojangAccount.remember = loginRemember;
-            mojangAccount.clientToken = getClientToken();
-            mojangAccount.store = response.getAuth().saveForStorage();
-
-            AccountManager.saveAccounts();
-        }
-
-        Analytics.trackEvent(AnalyticsEvent.simpleEvent("account_edit"));
-        LogManager.info("Edited Account " + account);
-        pushNewAccounts();
-    }
 
     private LoginResponse loginResponse = null;
 
@@ -203,11 +169,11 @@ public class AccountsViewModel implements IAccountsViewModel {
     public LoginPostResult loginPost() {
         if (loginResponse != null && loginResponse.hasAuth() && loginResponse.isValidAuth()) {
             if (selectedAccountIndex == -1) {
-                addNewAccount(loginResponse);
+                accountOperation.addNewAccount(loginResponse);
                 invalidateClientToken();
                 return new LoginPostResult.Added();
             } else {
-                editAccount(loginResponse);
+                accountOperation.editAccount(loginResponse);
                 invalidateClientToken();
                 return new LoginPostResult.Edited();
             }
